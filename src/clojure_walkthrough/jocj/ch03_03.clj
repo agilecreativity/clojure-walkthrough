@@ -41,25 +41,10 @@
 (def last-then-firstname (sorter-using lastname-firstname))
 
 ;; Let's see some result
-(map username users)  ;; ("kyle" "zak" "rob")
+(map username users) ;; ("kyle" "zak" "rob")
 (sort *1) ;; ("kyle" "rob" "zak") ;; Note: *1 means 'last result return by REPL'
 
-(pprint  (sort-by username users)) ;; =>
-;; ({:username "kyle",
-;;  :firstname "Kyle",
-;;  :lastname "Smith",
-;;  :balance 175.00M,
-;;  :member-since "2009-04-16"}
-;; {:username "rob",
-;;  :firstname "Robert",
-;;  :lastname "Jones",
-;;  :balance 98.50M,
-;;  :member-since "2009-03-30"}
-;; {:username "zak",
-;;  :firstname "Jones",
-;;  :lastname "Zackery",
-;;  :balance 12.95M,
-;;  :member-since "2009-02-01"})
+(sort-by username users) ;; ({:username "kyle", :firstname "Kyle", :lastname "Smith", :balance 175.00M, :member-since "2009-04-16"} {:username "rob", :firstname "Robert", :lastname "Jones", :balance 98.50M, :member-since "2009-03-30"} {:username "zak", :firstname "Jones", :lastname "Zackery", :balance 12.95M, :member-since "2009-02-01"})
 
 (def poorest-first (sorter-using balance))
 (poorest-first users) ;; ({:username "zak", :firstname "Jones", :lastname "Zackery", :balance 12.95M, :member-since "2009-02-01"} {:username "rob", :firstname "Robert", :lastname "Jones", :balance 98.50M, :member-since "2009-03-30"} {:username "kyle", :firstname "Kyle", :lastname "Smith", :balance 175.00M, :member-since "2009-04-16"})
