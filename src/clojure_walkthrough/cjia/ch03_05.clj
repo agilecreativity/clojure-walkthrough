@@ -1,10 +1,10 @@
-(ns clojure-walkthrough.jocj.ch03-05
+(ns clojure-walkthrough.cjia.ch03-05
   (:require [clojure.data.json :as json]
             [clojure.xml :as xml-core])
   (:gen-class))
 
 ;; See: https://github.com/clojure/data.json
-(def sample-json 
+(def sample-json
   (json/write-str {:a 1 :b 2}))
 
 sample-json ;; "{\"a\":1,\"b\":2}"

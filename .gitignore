@@ -7,5 +7,7 @@ pom.xml.asc
 *.class
 /.lein-*
 /.nrepl-port
-.hgignore
+.hgignoref
 .hg/
+# Emacs related file
+.\#*

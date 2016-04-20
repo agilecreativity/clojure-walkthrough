@@ -1,4 +1,4 @@
-(ns clojure-walkthrough.jocj.ch03-03
+(ns clojure-walkthrough.cjia.ch03-03
   (use clojure.pprint)
   (:gen-class))
 
