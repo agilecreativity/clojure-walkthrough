@@ -50,3 +50,64 @@
 ;; First category was: :books
 ;; First amount was: 49.95
 
+;; 3.6.2: Map bindings
+
+(def salary-details {:first-name "Barry"
+                     :last-name  "Gibb"
+                     :salary     1.0M })
+
+(defn describe-salary-2 [{first :first-name
+                          last :last-name
+                          annual :salary}]
+  (str first " " last " earns " annual))
+
+(describe-salary-2 salary-details) ;; "Barry Gibb earns 1.0"
+
+;; Use of 'or' to handle optional values
+(defn describe-salary-3 [{first  :first-name
+                          last   :last-name
+                          annual :salary
+                          bonus  :bonus-percentage :or {bonus 5}}]
+  (str first " " last " earns " annual " with a " bonus " percent bonus"))
+
+(describe-salary-3 salary-details) ;; "Barry Gibb"Pascal Dylan earns 85000 with a 20 percent bonus" earns 1.0 with a 5 percent bonus"  
+
+;; When call with all arguments will work normally
+
+(def a-user {:first-name       "Pascal"
+             :last-name        "Dylan"
+             :salary           85000
+             :bonus-percentage 20})
+
+(describe-salary-3 a-user) ;; "Pascal Dylan earns 85000 with a 20 percent bonus"
+
+(def another-user {:first-name "Basic"
+                   :last-name  "Groovy"
+                   :salary     7000})
+
+;; Note: the default value is used if the bonus is missing
+(describe-salary-3 another-user) ;; "Basic Groovy earns 7000 with a 5 percent bonus"
+
+;; Use of :as to bind the complete hash map option to a name.
+(defn describe-person [{first :first-name
+                        last :last-name
+                        bonus :bonus-percentage
+                        :or {bonus 5}
+                        :as p}]
+  (str "Info about " first " " last " is :" p ", bonus is :" bonus " percent"))
+
+(def third-user {:first-name "Lambda"
+                 :last-name  "Curry"
+                 :salary     95000})
+
+(describe-person third-user) ;; "Info about Lambda Curry is :{:first-name \"Lambda\", :last-name \"Curry\", :salary 95000}, bonus is :5 percent"
+
+;; Use of :keys
+(defn greet-user [{:keys [first-name last-name]}]
+  (str "Welcome, " first-name " " last-name))
+
+(def roger {:first-name "Roger"
+            :last-name  "Rabbit"
+            :salary     6500})
+
+(greet-user roger) ;; "Welcome, Roger Rabbit"
