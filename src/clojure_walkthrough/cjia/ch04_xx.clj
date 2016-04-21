@@ -39,3 +39,31 @@
 
 ;; Now let's give it another go
 (open-ad-hoc-type-namer {}) ;; "map"
+
+;; 4.1.3: subtype polymophism
+
+; first attempt with ad hoc polymorphism
+(defn map-type-namer [thing]
+  (condp = (type thing)
+    clojure.lang.PersistentArrayMap "map"
+    clojure.lang.PersistentHashMap  "map"))
+
+(map-type-namer (hash-map))  ;; "map"
+
+;; Note the duplicate implementation
+(map-type-namer (array-map)) ;; "map"
+
+;; let try with different kind of map
+(map-type-namer (sorted-map)) ;; => throw IllegalArgumentException: No matchng clause:
+
+;; Let's fix that
+(defn subtype-map-type-namer [thing]
+  (cond
+    (instance? clojure.lang.APersistentMap thing) "map" ;; Note: APersistentMap is Java superclass of all maplike things in Clojure
+    :else (throw (IllegalArgumentException.
+                  (str "No implementation found for ") (type thing)))))
+
+;; Now works for anything maplike!
+(subtype-map-type-namer (hash-map))   ;; "map"
+(subtype-map-type-namer (array-map))  ;; "map"
+(subtype-map-type-namer (sorted-map)) ;; "map"
