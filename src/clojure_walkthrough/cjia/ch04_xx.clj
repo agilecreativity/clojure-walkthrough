@@ -67,3 +67,34 @@
 (subtype-map-type-namer (hash-map))   ;; "map"
 (subtype-map-type-namer (array-map))  ;; "map"
 (subtype-map-type-namer (sorted-map)) ;; "map"
+
+;; 4.2.1: life without multimethods
+(def example-user {:login "rob"
+                   :referrer "mint.com"
+                   :salary 100000
+                   })
+(defn fee-amount [percentage user]
+  (with-precision 16 :rounding HALF_EVEN
+    (* 0.01M percentage (:salary user))))
+
+(defn affiliate-fee [user]
+  (case (:referrer user)
+    "google.com" (fee-amount 0.01M user)
+    "mint.com"   (fee-amount 0.03M user)
+    (fee-amount 0.02M user)))
+
+(affiliate-fee example-user) ;; 30.0000M
+
+;; 4.2.2: Ad hoc polymorphism using multimethod
+(defmulti affiliate-fee (fn [user] (:referrer user)))
+
+(defmethod affiliate-fee "mint.com" [user]
+  (fee-amount 0.03M user))
+
+(defmethod affiliate-fee "google.com" [user]
+  (fee-amount 0.01M user))
+
+(defmethod affiliate-fee :default [user]
+  (fee-amount 0.02M user))
+
+(affiliate-fee example-user) ;; 30.0000M
