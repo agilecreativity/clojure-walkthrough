@@ -40,6 +40,8 @@
 
 (Calendar/FEBRUARY) ;; 1
 
+(Calendar/MARCH) ;; 2
+
 ;; 5.1.4 Macros and the dot special form
 
 (. System getenv "PATH") 
