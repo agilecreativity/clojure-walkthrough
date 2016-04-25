@@ -31,6 +31,7 @@
 ;; Static Methods
 (Long/parseLong "12321") ;; 12321
 
+
 ;; calling with (Classname/staticMethod args*)
 
 ;; Static Fields
@@ -93,3 +94,37 @@
       (.set Calendar/SECOND 0)
       (.set Calendar/MILLISECOND 0))
     (.getTime calendar-obj)))
+
+;; 5.1.5 some useful Clojure macros when working with Java
+;; using `memfn` or 'member-as-function'
+;; Suppose we have the following
+(map (fn [x] (.getBytes x)) ["amit" "rob" "kyle"])
+
+;; Can be simplified to 
+(map #(.getBytes %) ["amit" "rob" "kyle"])
+
+;; Using memfn
+(memfn GetBytes) ;; #function[clojure-walkthrough.cjia.ch05-xx/eval20313/fn--20314]
+
+(memfn ^String getBytes) ;; #function[clojure-walkthrough.cjia.ch05-xx/eval20323/fn--20324]
+
+;; Using it in our example above
+(map (memfn getBytes) ["amit" "rob" "kyle"]) ;; (#object["[B" 0x303317a5 "[B@303317a5"] #object["[B" 0x6a556a5b "[B@6a556a5b"] #object["[B" 0xdb9b2e7 "[B@db9b2e7"])N
+
+;; Using memfn on String object
+(.subSequence "Clojure" 2 5) ;; "oju"
+
+;; The equivalent form with optional type hints is
+((memfn ^String subSequence ^Long start ^Long end) "Clojure" 2 5) ;; "oju"
+
+;; Java bean - Note the result is map which is much easier to deal with in some instance
+(bean (Calendar/getInstance)) ;; {:weeksInWeekYear 53, :timeZone #object[sun.util.calendar.ZoneInfo 0x35e030c2 "sun.util.calendar.ZoneInfo[id=\"Australia/Melbourne\",offset=36000000,dstSavings=3600000,useDaylight=true,transitions=142,lastRule=java.util.SimpleTimeZone[id=Australia/Melbourne,offset=36000000,dstSavings=3600000,useDaylight=true,startYear=0,startMode=3,startMonth=9,startDay=1,startDayOfWeek=1,startTime=7200000,startTimeMode=1,endMode=3,endMonth=3,endDay=1,endDayOfWeek=1,endTime=7200000,endTimeMode=1]]"], :weekDateSupported true, :weekYear 2016, :lenient true, :time #inst "2016-04-25T05:52:43.490-00:00", :timeInMillis 1461563563490, :class java.util.GregorianCalendar, :firstDayOfWeek 1, :gregorianChange #inst "1582-10-15T00:00:00.000-00:00", :minimalDaysInFirstWeek 1}
+
+;; Array
+(def tokens (.split "clojure.in.action" "\\.")) 
+
+(alength tokens) ;; 3
+
+(aget tokens 2) ;; "action"
+
+(aset tokens 2 "actionable") ;; "actionable"
