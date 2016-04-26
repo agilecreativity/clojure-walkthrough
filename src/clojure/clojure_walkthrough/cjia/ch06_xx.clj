@@ -173,4 +173,16 @@ all-users ;; #ref[{:status :ready, :val {}} 0x7c93b91f]
         z (long-calculation 17 19)]
     (* x y z)))
 
-(time (long-run))
+(time (long-run)) ;; "Elapsed time: 15008.324 msecs" and return 10207769
+
+;; Now let's use future
+(defn fast-run []
+  (let [x (future (long-calculation 11 13)) ; future creates a thread that will run
+        y (future (long-calculation 13 17)) ; long-calculation without blocking current thread
+        z (future (long-calculation 17 19))]
+    (* @x @y @z))) ;; Futures x, y, and z can potentially all run in parallel
+
+(time (fast-run)) ;; "Elapsed time: 5006.027 msecs" and return 10207769
+
+;; Here are other functions that Clojure provides:
+; future?, future-done?, future-cancel?, future-cancelled?
