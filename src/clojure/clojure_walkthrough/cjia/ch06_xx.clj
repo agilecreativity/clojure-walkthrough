@@ -159,3 +159,18 @@ all-users ;; #ref[{:status :ready, :val {}} 0x7c93b91f]
 
 ; we can remove them using `remove-watch`
 (remove-watch adi :adi-watcher)
+
+;; 6.10: Futures and promises
+
+(defn long-calculation [num1 num2]
+  ; Simulated the long running process
+  (Thread/sleep 5000)
+  (* num1 num2))
+
+(defn long-run []
+  (let [x (long-calculation 11 13)
+        y (long-calculation 13 17)
+        z (long-calculation 17 19)]
+    (* x y z)))
+
+(time (long-run))
