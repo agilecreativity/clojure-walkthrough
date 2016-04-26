@@ -186,3 +186,9 @@ all-users ;; #ref[{:status :ready, :val {}} 0x7c93b91f]
 
 ;; Here are other functions that Clojure provides:
 ; future?, future-done?, future-cancel?, future-cancelled?
+
+;; 6.10.2: promise, delivery
+(let [p (promise)] ; promises always start out with no value, so promise is a no-argument function.
+  (future (Thread/sleep 5000)
+          (deliver p :done))
+  @p) ;; derefencing promise will block 5 seconds, then return the :done value after promise received it!
