@@ -118,6 +118,6 @@
 (names 1) ;; "zak"
 
 ;; invalid index
-(names 10) ;; exception IndexOutOfBoundException
+;(names 10) ;; exception IndexOutOfBoundException
 
-(names 10 :not-found) ;; Arity exception
+;(names 10 :not-found) ;; Arity exception

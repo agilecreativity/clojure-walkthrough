@@ -5,6 +5,11 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.7.0"]
                  [org.clojure/data.json "0.2.6"]]
-  :main ^:skip-aot clojure-walkthrough.core
+  ;:main ^:skip-aot clojure-walkthrough.core
   :target-path "target/%s"
-  :profiles {:uberjar {:aot :all}})
+  :profiles {:uberjar {:aot :all}}
+  :source-paths ["src/clojure" "test/clojure"]
+  :java-source-paths ["src/java" "test/java"]
+  :aot [com.gentest.genclojure]
+  :main com.gentest.ConcreteClojureClass
+  )

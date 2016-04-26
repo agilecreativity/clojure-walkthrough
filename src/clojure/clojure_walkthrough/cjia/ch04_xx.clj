@@ -14,11 +14,11 @@
 (ad-hoc-type-namer []) ;; "vector"
 
 ;; what about something not in the list
-(ad-hoc-type-namer {}) ; IllegalArgumentException raised!
+;(ad-hoc-type-namer {}) ; IllegalArgumentException raised!
 
 ;; Pull implementations out into a separate redef-able map
 (def type-namer-implementations
-  {java.lang.String (fn [thing] "string")   
+  {java.lang.String (fn [thing] "string")
    clojure.lang.PersistentVector (fn [thing] "vector")})
 
 (defn open-ad-hoc-type-namer [thing]
@@ -29,7 +29,7 @@
 
 (open-ad-hoc-type-namer "I am a string") ;; "string"
 (open-ad-hoc-type-namer []) ;; "vector"
-;; we are able 
+;; we are able
 (open-ad-hoc-type-namer {}) ;; nil
 
 ;; Now let's redefine the implementation for map
@@ -54,7 +54,7 @@
 (map-type-namer (array-map)) ;; "map"
 
 ;; let try with different kind of map
-(map-type-namer (sorted-map)) ;; => throw IllegalArgumentException: No matchng clause:
+;(map-type-namer (sorted-map)) ;; => throw IllegalArgumentException: No matchng clause:
 
 ;; Let's fix that
 (defn subtype-map-type-namer [thing]

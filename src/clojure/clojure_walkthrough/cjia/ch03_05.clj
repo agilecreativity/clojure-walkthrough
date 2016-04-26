@@ -19,6 +19,6 @@ sample-json ;; "{\"a\":1,\"b\":2}"
     ;; more code here
     ))
 
-(defn totals-by-day [start-date end-date]
-  (let [expenses-by-day (load-totals start-date end-date)]
-    (json/json-str expense-by-day)))
+;; (defn totals-by-day [start-date end-date]
+;;   (let [expenses-by-day (load-totals start-date end-date)]
+;;     (json/json-str expense-by-day)))
