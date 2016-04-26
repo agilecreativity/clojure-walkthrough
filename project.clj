@@ -12,4 +12,5 @@
   :java-source-paths ["src/java" "test/java"]
   :aot [com.gentest.genclojure]
   :main com.gentest.ConcreteClojureClass
+  ;:main com.examples.Client
   )
