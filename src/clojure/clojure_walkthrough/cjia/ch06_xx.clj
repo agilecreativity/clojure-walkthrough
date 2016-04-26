@@ -74,3 +74,48 @@ all-users ;; #ref[{:status :ready, :val {}} 0x7c93b91f]
 
 (clear-agent-errors bad-agent) ;; agent is now ready for more actions
 
+;; 6.6: Atoms
+(def total-rows (atom 0))
+
+(deref total-rows) ;; 0
+
+; or the same as
+@total-rows
+
+;; 6.6.2: mutating atoms
+; (reset! atom new-value)
+; (swap! the-atom the-function & more-args)
+
+(swap! total-rows + 100)
+@total-rows ;; 100
+
+;; compare-and-set!
+;(compare-and-set! the-atom old-value new-value)
+
+;; 6.7: Vars
+(def hbase-master "localhost")
+
+(def ^:dynamic *hbase-master* "localhost")
+
+(str "Hbase-master is:" *hbase-master*) ;; "Hbase-master is:localhost"
+
+;; If you use without root binding you will get unbound object
+(def ^:dynamic *rabbitmq-host*)
+
+(str "RabbitMQ host is:" *rabbitmq-host*) ;; "RabbitMQ host is:Unbound: #'clojure-walkthrough.cjia.ch06_xx/*rabbitmq-host*"
+
+(bound? #'*rabbitmq-host*) ;; false
+
+;; 6.7.2: Var bindings
+
+(def ^:dynamic *mysql-host*)
+
+(defn db-query [db]
+  (binding [*mysql-host* db]
+    (count *mysql-host*)))
+
+(def mysql-hosts ["test-mysql" "dev-mysql" "staging-mysql"])
+
+(pmap db-query mysql-hosts) ;; (10 9 13)
+
+;; 6.8: State and its unified access model (TBC)
