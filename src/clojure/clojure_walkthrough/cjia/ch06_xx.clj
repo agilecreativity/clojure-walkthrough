@@ -119,3 +119,43 @@ all-users ;; #ref[{:status :ready, :val {}} 0x7c93b91f]
 (pmap db-query mysql-hosts) ;; (10 9 13)
 
 ;; 6.8: State and its unified access model (TBC)
+;; creating
+(def a-ref (ref 0))
+(def an-agent (agent 0))
+(def an-atom (atom 0))
+
+;; reading
+(deref a-ref)    ; or @a-ref
+(deref an-agent) ; or @an-agent
+(deref an-atom)  ; or @an-atom
+
+;; Mutation (for refs)
+;(ref-set new-value)
+;(alter ref function & args)
+;(commut ref function & args)
+
+;; Mutation (for agents)
+;(send agent function & args)
+;(send-off agent function & args)
+
+;; Mutattion (for atoms)
+;(reset! atom new-value)
+;(swap! atom function & args)
+;(compare-and-set! atom old-value new-value)
+
+;; 6.8.5: watching for mutation with `add-watch` and `remove-watch`
+(def adi (atom 0))
+
+(defn on-change [the-key the-ref old-value new-value]
+  (println "Hey, seeing change from " old-value " to " new-value))
+
+; Use of add-watch function
+(add-watch adi :adi-watcher on-change)
+
+(deref adi) ;
+
+(swap! adi inc) ; 1
+(swap! adi inc) ; 2
+
+; we can remove them using `remove-watch`
+(remove-watch adi :adi-watcher)
