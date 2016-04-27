@@ -66,3 +66,11 @@
 
 ;; Other useful functions are
 ; `macroexpand-1`, `macroexpand-all` from `clojure.walk`
+
+(macroexpand '(unless (even? x) (println "Very odd, indeed!"))) ;; (unless (even? x) (println "Very odd, indeed!"))
+
+(defn exhibits-oddity? [x]
+  (unless (even? x)
+          (do
+            (println "Odd!")
+            (println "Very odd!"))))
