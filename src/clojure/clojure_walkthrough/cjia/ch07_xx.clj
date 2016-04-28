@@ -135,3 +135,27 @@
 
 ;; time:
 
+(time (* 1331 13531)) ; 18009761
+
+;; Let's implement our own
+(defmacro time [expr]
+  `(let [start# (. System (nanoTime))
+         ret# ~expr]
+     (prn
+      (str "Elapsed time:"
+           (/ (double (- (. System (nanoTime)) start#)) 10000000.0)
+           " msecs"))
+     ret#)) ; #'clojure-walkthrough.cjia.ch07-xx/time
+
+(time (* 1345 5979)) ; 8041755
+
+;; 7.3: writing our own macro
+
+(defmacro randomly [& exprs]
+  (let [len (count exprs)
+        index (rand-int len)
+        conditions (map #(list '= index %) (range len))]
+    `(cond ~@(interleave conditions exprs))))
+
+(randomly (println "Amit") (println "Deepthi" (println "Adi")))
+(macroexpand-1 '(randomly (println "Amit") (println "Deepthi" (println "Adi")))) ; (clojure.core/cond (= 0 0) (println "Amit") (= 0 1) (println "Deepthi" (println "Adi")))
