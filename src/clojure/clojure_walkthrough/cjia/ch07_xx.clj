@@ -74,3 +74,64 @@
           (do
             (println "Odd!")
             (println "Very odd!"))))
+
+(exhibits-oddity? 4) ; nil
+(exhibits-oddity? 3) ; REPL: "Odd!" and "Very odd!"
+
+(defmacro unless [test & exprs]
+  `(if (not ~test)
+     (do ~exprs)))
+
+(defmacro unless [test & exprs]
+  `(if (not ~test)
+     (do ~@exprs)))
+;
+(:import 'java.lang.System)
+(System/currentTimeMillis)
+
+(defmacro def-logged-fn [fn-name args & body]
+  `(defn ~fn-name ~args
+     (let [now# (System/currentTimeMillis)]
+       (println "[" now# "]Call to" (str (var ~fn-name)))
+     ~@body)))
+
+(macroexpand-1 '(def-logged-fn printname [name]
+                  (println "Hi" name))) ;; (clojure.core/defn printname [name] (clojure.core/let [clojure-walkthrough.cjia.ch07-xx/now (java.lang.System/currentTimeMillis)] (clojure.core/println "[" clojure-walkthrough.cjia.ch07-xx/now "]Call to" (clojure.core/str (var printname))) (println "Hi" name)))
+
+(def-logged-fn printname [name]
+  (println "Hi" name))
+
+(printname "Arun")
+
+;; 7.1.2: comment
+; (defmacro comment [& body])
+
+(defmacro declare [& names]
+  `(do
+     ~@(map #(list 'def %) names)))
+
+(macroexpand '(declare add multiply subtract divide)) ; (do (def add) (def multiply) (def subtract) (def divide))
+
+;; defonce
+(defmacro defonce [name expr]
+  `(let [v# (def ~name)]
+     (when-not (.hasRoot v#)
+       (def ~name ~expr))))
+
+;; and
+(defmacro and
+  ([] true)
+  ([x] x)
+  ([x & next]
+   `(let [and# ~x]
+      (if and# (and ~@next) and#))))
+
+(and 2)
+(and [true 3]) ; [true 3]
+(and [(+ 4 5) nil 9])
+(and) ; true
+
+(macroexpand '(and (even? x) (> x 50) (< x 500))) ; (let* [and__20455__auto__ (even? x)] (if and__20455__auto__ (clojure-walkthrough.cjia.ch07-xx/and (> x 50) (< x 500)) and__20455__auto__))
+
+;; time:
+
