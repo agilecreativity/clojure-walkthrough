@@ -159,3 +159,16 @@
 
 (randomly (println "Amit") (println "Deepthi" (println "Adi")))
 (macroexpand-1 '(randomly (println "Amit") (println "Deepthi" (println "Adi")))) ; (clojure.core/cond (= 0 0) (println "Amit") (= 0 1) (println "Deepthi" (println "Adi")))
+
+(defmacro randomly-2 [& exprs]
+  (nth exprs (rand-int (count exprs))))
+
+;; it returns the same random value!
+(randomly-2 (println "Amit") (println "Deepthi" (println "Adi")))
+
+;; The fix
+(defmacro randomly-2 [& exprs]
+  (let [c (count exprs)]
+    `(case (rand-int ~c) ~@(interleave (range c) exprs))))
+
+(randomly-2 (println "Amit") (println "Deepthi" (println "Adi"))) ;; return proper result!
