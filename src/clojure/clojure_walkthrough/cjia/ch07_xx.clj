@@ -235,3 +235,23 @@ nv(login-user request) ; "Welcome back, amit, 1234is correct!"
 (assert-true (< (* 4 5) (* 2 5))) ;; java.lang.RuntimeException
                                   ;; (* 4 5) is not < 10
 (macroexpand-1 '(assert-true (>= (* 2 4) (/ 18 2)))) ;; (clojure.core/let [rhsv__20666__auto__ (/ 18 2) ret__20667__auto__ (>= (* 2 4) (/ 18 2))] (clojure.core/if-not ret__20667__auto__ (throw (java.lang.RuntimeException. (clojure.core/str (quote (* 2 4)) " is not " (quote >=) " " rhsv__20666__auto__))) true))
+
+;; What if invalid expression are passed in
+(defmacro assert-true [test-expr]
+  (if-not (= 3 (count test-expr))
+    (throw (RuntimeException.
+            "Argument must be of the form (operator test-expr expected-expr)")))
+  (if-not (some #{(first test-expr)} '(< > <= >= = not=))
+    (throw (RuntimeException.
+            "Operator must be one of < > <= >= = not=")))
+  (let [[operator lhs rhs] test-expr]
+    `(let [rhsv# ~rhs ret# ~test-expr]
+       (if-not ret#
+         (throw (RuntimeException.
+                 (str '~lhs " is not " '~operator " " rhsv#)))
+         true))))
+
+;; (assert-true (<> (* 2 4) (/ 18 2) (+ 2 5))) ;; => Argument must be of the form (operator test-expr expected-expr)
+
+;; (assert-true (<> (* 2 4) (/ 16 2))) ;; => Operator must be one of < > <= >= = not=
+
