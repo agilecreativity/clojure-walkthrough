@@ -172,3 +172,65 @@
     `(case (rand-int ~c) ~@(interleave (range c) exprs))))
 
 (randomly-2 (println "Amit") (println "Deepthi" (println "Adi"))) ;; return proper result!
+
+(defn check-credentials [username password]
+  ; Just return true for now
+  true)
+
+(defn login-user [request]
+  (let [username (:username request)
+        password (:password request)]
+    (if (check-credentials username password)
+      (str "Welcome back, " username ", " password "is correct!")
+      (str "Login failed!"))))
+
+(def request {:username "amit"
+              :password "1234"})
+
+nv(login-user request) ; "Welcome back, amit, 1234is correct!"
+
+;; Let's create the macro
+(defmacro defwebmethod [name args & exprs]
+  `(defn ~name [{:keys ~args}]
+     ~@exprs))
+
+(defwebmethod login-user [username password]
+  (if (check-credentials username password)
+    (str "Welcome, " username "," password " is still correct!")
+    (str "Login failed!")))
+
+(login-user request) ; "Welcome, amit,1234 is still correct!"
+
+;; 7.3.4: defnn
+(defmacro defnn [fname [& names] & body]
+  (let [ks {:keys (vec names)}]
+    `(defn ~fname [& {:as arg-map#}]
+       (let [~ks arg-map#]
+         ~@body))))
+
+(defnn print-details [name salary start-date]
+  (println "Name     : " name)
+  (println "Salary   : " salary)
+  (println "Start on : " start-date))
+
+(print-details :start-date "10/22/2009"
+               :name "Rob"
+               :salary 1000000)
+
+;; assert-true
+(defmacro assert-true [test-expr]
+  (let [[operator lhs rhs] test-expr]
+   `(let [rhsv# ~rhs ret# ~test-expr]
+      (if-not ret#
+        (throw (RuntimeException.
+                (str '~lhs " is not " '~operator " " rhsv#)))
+        true
+        ))))
+
+; We like to use this one this way!
+(assert-true (= (* 2 4) (/ 16 2))) ; true
+
+(assert-true (< (* 2 4) (/ 18 2))) ; true
+
+(assert-true (< (* 4 5) (* 2 5))) ;; java.lang.RuntimeException
+                                  ;; (* 4 5) is not < 10
