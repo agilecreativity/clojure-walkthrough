@@ -87,8 +87,8 @@
 (defn largest-of [numbers]
   (compute-across larger-of numbers (first numbers)))
 
-(defn all-greater-than [theshold numbers]
-  (compute-across #(if (> %2 threshold) (conj %1 %2) %1) numbers [])))
+(defn all-greater-than [threshold numbers]
+  (compute-across #(if (> %2 threshold) (conj %1 %2) %1) numbers []))
 
 (total-of [5 7 9 3 4 1 2 8]) ;; 39
 (largest-of [5 7 9 3 4 1 2 8]) ;; 9
@@ -104,4 +104,71 @@
 
 (all-greater-than 5 [5 7 9 3 4 1 2 8]) ;; [7 9 8]
 
-;; 8.1.3: filtering lists of things (TBC)
+;; Filtering lists of things
+(defn all-lesser-than [threshold numbers]
+  (compute-across #(if (< %2 threshold) (conj %1 %2) %1) numbers []))
+
+(all-lesser-than 5 [5 7 9 3 4 1 2 8]) ;; [3 4 1 2]
+
+(defn select-if [pred elements]
+  (compute-across #(if (pred %2) (conj %1 %2) %1) elements []))
+
+(select-if odd? [5 7 9 3 4 1 2 8]) ; [5 7 9 3 1]
+
+(defn all-lesser-than [threshold numbers]
+  (select-if #(< % threshold) numbers))
+
+(all-lesser-than 5 [5 7 9 3 4 1 2 8]) ; [3 4 1 2]
+
+;; the built-in filter
+
+(filter odd? [5 7 9 3 4 1 2 8]) ; (5 7 9 3 1)
+
+(defn all-lesser-than [threshold numbers]
+  (filter #(< % threshold) numbers))
+
+(all-lesser-than 5 [5 7 9 3 4 1 2 8]) ; (3 4 1 2)
+
+(defn price-with-tax [tax-rate amount]
+  (->> (/ tax-rate 100)
+       (+ 1)
+       (* amount)))
+
+(price-with-tax 9.5M 100) ; 109.500M
+
+(defn with-california-taxes [prices]
+  (map #(price-with-tax 9.25M %) prices))
+
+(def prices [100 200 300 400 500])
+
+(with-california-taxes prices) ; (109.2500M 218.5000M 327.7500M 437.0000M 546.2500M)
+
+(defn price-with-ca-tax [price]
+  (price-with-tax 9.25M price))
+
+(defn price-with-ny-tax [price]
+  (price-with-tax 8.0M price))
+
+(defn price-calculator-for-tax [state-tax]
+  (fn [price]
+    (price-with-tax state-tax price)))
+
+(defn of-n-args [a b c d e]
+  (str a b c d e))
+
+(defn of-k-args [d e]
+  (of-n-args 1 2 3 d e))
+
+(of-k-args \a \b) ; "123ab"
+
+(defn partially-applied [of-n-args & n-minus-k-args]
+  (fn [& k-args]
+    (apply of-n-args (concat n-minus-k-args k-args))))
+
+(def of-2-args (partially-applied of-n-args \a \b \c))
+
+(def of-3-args (partially-applied of-n-args \a \b))
+
+(of-2-args 4 5) ; "abc45"
+
+(of-3-args 3 4 5) ; "ab345"
