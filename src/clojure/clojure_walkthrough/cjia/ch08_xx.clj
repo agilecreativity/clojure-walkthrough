@@ -153,6 +153,8 @@
   (fn [price]
     (price-with-tax state-tax price)))
 
+;; Examples
+
 (defn of-n-args [a b c d e]
   (str a b c d e))
 
@@ -172,3 +174,186 @@
 (of-2-args 4 5) ; "abc45"
 
 (of-3-args 3 4 5) ; "ab345"
+
+;; Using built-in function `partial`
+
+(def of-2-args (partial of-n-args \a \b \c))
+
+(def of-3-args (partial of-n-args \a \b))
+
+(of-2-args 4 5) ; "abc45"
+
+(of-3-args 3 4 5) ; "ab345"
+
+;; Defining functions
+
+(defn select-if [pred elements]
+  (compute-across #(if (pred %2) (conj %1 %2) %1) elements []))
+
+(defn select-into-if [container pred elements]
+  (compute-across #(if (pred %2) (conj %1 %2) %1) elements container))
+
+(def numbers [4 9 5 7 6 3 8])
+
+;; Use with list
+(select-into-if () #(< % 7) numbers) ;; (3 6 5 4)
+
+;; Use with vector
+(select-into-if [] #(< % 7) numbers) ;; [4 5 6 3]
+
+(def select-up (partial select-into-if []))
+
+(def select-down (partial select-into-if ()))
+
+(select-up #(< % 9) [5 3 9 6 8]) ;; [5 3 6 8]
+
+(select-down #(< % 9) [5 3 9 6 8]) ;; (8 6 3 5)
+
+;; 8.3: Closures
+
+(defn adder [num1 num2]
+  (let [x (+ num1 num2)]
+    (fn [y]
+      (+ x y))))
+
+(def add-5 (adder 2 3))
+
+(add-5 10) ; 15
+
+;; Delayed computation and closures
+(let [x 1
+      y 0]
+  (try
+    (/ x y)
+    (catch Exception e
+      (println (.getMessage e))))) ;; REPL: "Divide by zero"; return nil
+
+;; Let's write our own
+(defn try-catch [the-try the-catch]
+  (try
+    (the-try)
+    (catch Exception e (the-catch e))))
+
+(let [x 1
+      y 0]
+  (try-catch #(/ x y)
+             #(println (.getMessage %)))) ;; REPL: "Divide by zero"; return nil
+
+;; Closures and objects
+
+(defn new-user [login password email]
+  (fn [a]
+    (case a
+      :login login
+      :password password
+      :email email
+      nil)))
+
+(def arjun (new-user "arjun" "secret" "arjun@email.com"))
+
+(arjun :login) ;; "arjun"
+
+(arjun :password) ;; "secret"
+
+(arjun :email) ;; "arjun@email.com"
+
+; on invalid key
+(arjun :name) ;; nil
+
+;; with inner access control
+(defn new-user [login password email]
+  (fn [a]
+    (case a
+      :login login
+      :email email
+      :password-hash (hash password)
+      nil)))
+
+(def arjun (new-user "arjun" "secret" "arjun@email.com"))
+
+(arjun :password) ;; nil
+
+(arjun :password-hash) ;; 1614358358
+
+(defn new-user [login password email]
+  (fn [a & args]
+    (case a
+      :login login
+      :email email
+      :authenticate (= password (first args)))))
+
+;; Now let's try it out
+(def adi (new-user "adi" "secret" "adi@email.com"))
+
+(adi :authenticate "blah") ; false
+
+(adi :authenticate "secret")  ;; true
+
+;; 8.3.4 : an object system for Clojure
+
+(defn new-class [class-name]
+  (fn [command & args]
+    (case command
+      :name (name class-name))))
+
+(defmacro defclass [class-name]
+  `(def ~class-name (new-class '~class-name)))
+
+(defclass Person)
+
+(Person :name) ;; "Person"
+
+(def some-class Person)
+
+(some-class :name) ; "Person"
+
+;; Creating instances
+
+(defn new-object [klass]
+  (fn [command & args]
+    (case command
+      :class klass)))
+
+;; in action
+(def cindy (new-object Person))
+
+(new-object Person) ;; #function[clojure-walkthrough.cjia.ch08-xx/new-object/fn--20607]
+
+((cindy :class) :name) ;; "Person"
+
+(defn new-object [klass]
+  (fn [command & args]
+    (case command
+      :class klass
+      :class-name (klass :name))))
+
+(def cindy (new-object Person))
+
+(defn new-class [class-name]
+  (fn klass [command & args]
+    (case command
+      :name (name class-name)
+      :new (new-object klass))))
+
+(defclass Person)
+
+(def nancy (Person :new))
+
+(nancy :class-name) ; "Person"
+
+;; Objects and state
+
+(defn new-object [klass]
+  (let [state (ref {})]
+    (fn [command & args]
+      (case command
+        :class klass
+        :class-name (klass :name)
+        :set! (let [[k v] args]
+                (dosync (alter state assoc k v))
+                nil)
+        :get (let [[key] args]
+               (@state key))))))
+
+; try this out
+(def nancy (Person :new))
