@@ -109,3 +109,41 @@
 (concat [1 2] [3 4]) ;;(1 2 3 4)
 
 ;; Lazy sequences
+
+(def vampire-database
+  {0 {:make-blood-pun? false, :has-pulse? true  :name "McFishwich"}
+   1 {:make-blood-pun? false, :has-pulse? true  :name "McMacson"}
+   2 {:make-blood-pun? true,  :has-pulse? false :name "Damon Salvatore"}
+   3 {:make-blood-pun? true,  :has-pulse? true  :name "Mickey Mouse"}})
+
+(defn vampire-related-details [social-security-number]
+  (Thread/sleep 1000)
+  (get vampire-database social-security-number))
+
+(defn vampire? [record]
+  (and (:make-blood-pun? record)
+       (not (:has-pulse? record))
+       record))
+
+(defn identify-vampire [social-security-numbers]
+  (first (filter vampire? (map vampire-related-details social-security-numbers))))
+
+(time (vampire-related-details 0))
+;; "Elapsed time: 1000.76577 msesc"
+;; {:make-blood-pun? false, :has-pulse? true, :name "McFishwich"}
+
+(time (def mapped-details (map vampire-related-details (range 0 1000000))))
+;; "Elapsed time: 0.145619 msecs"
+
+(time (first mapped-details)) ;; {:make-blood-pun? false, :has-pulse? true, :name "McFishwich"}
+
+;; infinite sequences
+(concat (take 8 (repeat "na")) ["Batman!"]) ;;("na" "na" "na" "na" "na" "na" "na" "na" "Batman!")
+
+(take 3 (repeatedly (fn [] (rand-int 10)))) ;; (1 8 0)
+
+(defn even-numbers
+  ([]  (even-numbers 0))
+  ([n] (cons n (lazy-seq (even-numbers (+ n 2))))))
+
+(take 10 (even-numbers)) ;;(0 2 4 6 8 10 12 14 16 18)
