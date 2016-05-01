@@ -49,3 +49,24 @@
    {:alias "Easter Bunny" :real "Your dad"}])
 
 (map :real identities) ;; ("Bruce Wayne" "Peter Parker" "Your mom" "Your dad")
+
+;; reduce
+(reduce (fn [new-map [key value]]
+          (assoc new-map key (inc value)))
+        {}
+        {:max 30 :min 10}) ;; {:max 31, :min 11}
+
+;; Use to filter out the values
+(reduce (fn [new-map [key val]]
+          (if (> val 4)
+            (assoc new-map key val)
+            new-map))
+        {}
+        {:human 4.1
+         :critter 3.9}) ;; {:human 4.1}
+
+; take, drop, take-while, and drop-while
+
+(take 3 [1 2 3 4 5 6 7 8 9 10]) ;; (1 2 3)
+
+(drop 3 [1 2 3 4 5 6 7 8 9 10]) ;; (4 5 6 7 8 9 10)
