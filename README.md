@@ -49,6 +49,12 @@ lein clean
 
 - [mixing-java-and-clojure](https://github.com/quephird/mixing-java-and-clojure)
 
+```clj
+(System/getProperty "file.endcoding") ;"UTF-8"
+(clojure-version) ;; 1.7.0
+(System/getProperty "user.dir")
+```
+
 ## License
 
 Copyright © 2016 FIXME

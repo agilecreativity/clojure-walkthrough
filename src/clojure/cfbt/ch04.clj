@@ -147,3 +147,109 @@
   ([n] (cons n (lazy-seq (even-numbers (+ n 2))))))
 
 (take 10 (even-numbers)) ;;(0 2 4 6 8 10 12 14 16 18)
+
+(cons 0 '(2 4 6)) ;; (0 2 4 6)
+
+;; The collection abstraction
+(empty? []) ;; true
+
+(empty? ["no"]) ;; false
+
+(map identity {:sunlight-reaction "Glitter!"}) ;; ([:sunlight-reaction "Glitter!"])
+
+(into {} (map identity {:sunlight-reaction "Glitter!"})) ;; {:sunlight-reaction "Glitter!"}
+
+(map identity [:garlic-clove :garlic-clove]) ;; (:garlic-clove :garlic-clove)
+
+(into #{} (map identity [:garlic-clove :garlic-clove])) ;; #{:garlic-clove}
+
+(into {:facorite-emotion "gloomy"} [[:sunlight-reaction "Glitter!"]])
+;; {:facorite-emotion "gloomy", :sunlight-reaction "Glitter!"}
+
+(into ["cherry"] '("pine" "spruce"))
+;; ["cherry" "pine" "spruce"]
+
+(into {:favorite-animal "kitty"} {:least-favorite-smell "dog"
+                                  :relationship-with-teenager "creepy"})
+;; {:favorite-animal "kitty", :least-favorite-smell "dog", :relationship-with-teenager "creepy"}
+
+;; conj
+(conj [0] [1]) ;; [0 [1]]
+
+(into [0] [1]) ;; [0 1]
+
+(conj [0] 1) ;; [0 1]
+
+(conj [0] 1 2 3 4 5) ;; [0 1 2 3 4 5]
+
+(conj {:time "midnight"} {:place "ye olde cemetarium"})
+;; {:time "midnight", :place "ye olde cemetarium"}
+
+;; define conj interm of into
+(defn my-conj [target & additions]
+  (into target additions))
+
+(my-conj [0] 1 2 3 4 5) ;; [0 1 2 3 4 5]
+
+;; functions
+(max 0 2 3 1 5 6) ;; 6
+(apply max [0 1 2 3 4]) ;; 4
+
+(defn my-into
+  [target additions]
+  (apply conj target additions))
+
+(my-into [] [0 1 2 3 4]) ;; [0 1 2 3 4]
+
+;; partial
+(def add10 (partial + 10))
+
+(add10 3) ;; 13
+
+(add10 5) ;; 15
+
+(def add-missing-elements
+  (partial conj ["water" "earth" "air"]))
+
+(add-missing-elements "fire") ;; ["water" "earth" "air" "fire"]
+(add-missing-elements "unotainium" "adamantium") ;; ["water" "earth" "air" "unotainium" "adamantium"]
+
+(defn my-partial
+  [partialized-fn & args]
+  (fn [& more-args]
+    (apply partialized-fn (into args more-args))))
+
+(def add20 (my-partial + 20))
+(add20 3) ;; 23
+
+(defn lousy-logger
+  [log-level message]
+  (condp = log-level
+    :warn (clojure.string/lower-case message)
+    :emergency (clojure.string/upper-case message)))
+
+(def warn (partial lousy-logger :warn))
+(warn "Red light ahead") ;; "red light ahead"
+
+(def danger (partial lousy-logger :emergency))
+(danger "You should stop now") ;; "YOU SHOULD STOP NOW"
+
+;; Complement
+(defn identity-humans
+  [social-security-numbers]
+  (filter #(not (vampire? %))
+          (map vampire-related-details social-security-numbers)))
+
+;; complement
+(defn my-complement
+  [fun]
+  (fn [& args]
+    (not (apply fun args))))
+
+(def my-pos? (complement neg?))
+
+(my-pos? 1) ;; true
+(my-pos? 0) ;; true
+(my-pos? -1) ;; false
+
+;; A Vampire Data Ananysis Program for FWPD (p 93): TBC
