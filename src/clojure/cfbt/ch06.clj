@@ -44,6 +44,16 @@ cheddars ;; ["mild" "medium" "strong" "sharp" "extra sharp"]
 (clojure.core/get (clojure.core/ns-map clojure.core/*ns*) 'cheddars) ;; #'cheese.taxonomy/cheddars
 
 (clojure.core/refer 'cheese.taxonomy :only ['bries])
-bries ;; ["Wisconsin" "Somerset" "Brie de Meaux" "Brie de Melun"]
+bries ;; ["Wisconsin" "Somerset" "Brie de Meaux"  "Brie de Melun"]
 
-;; Page :131 (TBC)
+(in-ns 'cheese.analysis)
+;; Notice the dash after "defn"
+(defn- private-function
+  "Just an example function that does nothing!"
+  [])
+
+(in-ns 'cheese.taxonomy)
+(clojure.core/refer-clojure)
+;(cheese.analysis/private-function) ;; Exception
+;(refer 'cheese.analysis :only ['private-function]) ;; Exception..
+
