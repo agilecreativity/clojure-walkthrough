@@ -78,3 +78,38 @@ great-baby-name ;;  "Rosanthony"
 (c-int character) ;; 10
 (c-str character) ;; 4
 (c-dex character) ;; 5
+
+(defn spell-slots
+  [char]
+  (int (inc (/ (c-int char) 2))))
+
+(spell-slots character) ;; 6
+
+;; do the same with `comp`
+
+(def spell-slots-comp (comp int inc #(/ % 2) c-int))
+
+(spell-slots-comp character) ;; 6
+
+(defn two-comp
+  [f g]
+  (fn [& args]
+    (f (apply g args))))
+
+;; Memoize
+(+ 3 (+ 5 8)) ;; 16
+(+ 3 (13))    ;; 15
+
+(defn sleepy-identity
+  "Returns the given value after 1 second"
+  [x]
+  (Thread/sleep 1000)
+  x)
+
+(sleepy-identity "Mr. Fantastico") ;; "Mr. Fantastico"
+
+(def memo-sleepy-identity (memoize sleepy-identity))
+
+(memo-sleepy-identity "Mr. Fantastico") ;; "Mr. Fantastico"
+
+;; The PEG things (see the official source)
