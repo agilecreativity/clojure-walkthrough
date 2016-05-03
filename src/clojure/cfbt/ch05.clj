@@ -113,3 +113,4 @@ great-baby-name ;;  "Rosanthony"
 (memo-sleepy-identity "Mr. Fantastico") ;; "Mr. Fantastico"
 
 ;; The PEG things (see the official source)
+;; See: https://github.com/flyingmachine/pegthing
