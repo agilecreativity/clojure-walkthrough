@@ -57,4 +57,25 @@
                 (slap me :silly))).
 ;;=> (if (the-cows-come :home) (do (call me :pappy) (slap me :silly)))
 
-;; TBC: page 169
+;; From the built-in macro `unless`
+
+(defmacro cj-unless
+  "Inverted 'if'"
+  [test & branches]
+  (conj (reverse branches) test 'if))
+
+(macroexpand '(unless (done-been slapped? me)
+                          (slap me :silly)
+                          (say "I reckon that'll learn me")))
+;; (unless (done-been slapped? me) (slap me :silly) (say "I reckon that'll learn me"))
+
+;; Syntax Quoting
+'+ ;; +
+'clojure.core/+ ;; clojure.core/+
+`+ ;; clojure.core/+
+'(+ 1 2) ;; (+ 1 2)
+`(+ 1 2) ;; (clojure.core/+ 1 2)
+`(+ 1 ~(inc 1)) ;; (clojure.core/+ 1 2)
+(list '+ 1 (inc 1)) ;; (+ 1 2)
+
+;; Using Syntax Quoting in a Macro (p173)
