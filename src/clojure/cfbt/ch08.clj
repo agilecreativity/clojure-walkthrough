@@ -176,3 +176,42 @@ l;; => "Great squid of Madrid, this is bad code: (1 + 1)
  (println "Here's how I feel about that thing you did: " message))
 
 ;; Double Evaluation (p178): TBC
+; code that does not work in the expected way
+(defmacro report
+  [to-try]
+  `(if ~to-try
+     (println (quote ~to-try) "was successful:" ~to-try)
+     (println (quote ~to-try) "was not successful:" ~to-try)))
+
+(report (do (Thread/sleep 1000) (+ 1 1)))
+
+; Proper way to avoid the double problem with auto-gensym's symbol
+(defmacro report
+  [to-try]
+  `(let [result# ~to-try]
+     (if result#
+       (println (quote ~to-try) "was successful:" result#)
+       (println (quote ~to-try) "was not successfull:" result#))))
+
+(report (do (Thread/sleep 1000) (+ 1 1)))
+
+;; Macros All the Way Down
+(report (= 1 1))
+;; => (= 1 1) was successful: true
+
+(report (= 1 2))
+;; => (= 1 2) was not successfull: false
+
+(doseq [code ['(= 1 1) '(= 1 2)]]
+  (report code))
+
+(defmacro doseq-macro
+  [macroname & args]
+  `(do
+     ~@(map (fn [arg] (list macroname arg)) args)))
+
+(doseq-macro report (= 1 1) (= 1 2))
+;; (= 1 1) was successful: true
+;; (= 1 2) was not successfull: false
+
+;; Validation Function (p180)
