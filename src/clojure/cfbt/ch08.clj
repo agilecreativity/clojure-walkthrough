@@ -79,3 +79,100 @@
 (list '+ 1 (inc 1)) ;; (+ 1 2)
 
 ;; Using Syntax Quoting in a Macro (p173)
+
+(defmacro code-critic
+  "Phrases are courtesy Hermes Conrad from Futurama"
+  [bad good]
+  (list 'do
+        (list 'println
+              "Great squid of Madrid, this is bad code:"
+              (list 'quote bad))
+        (list 'println
+              "Sweet gorilla of Manila, this is good code:"
+              (list 'quote good))))
+
+(code-critic (1 + 1) (+ 1 1))
+l;; => "Great squid of Madrid, this is bad code: (1 + 1)
+;;    "Sweet gorilla of Manila, this is good code: (+ 1 1)
+
+;; Use of syntax quoting
+(defmacro code-critic
+  [bad good]
+  `(do (println "Great squid of Madrid, this is bad code:"
+                (quote ~bad))
+       (println "Sweet gorilla of Manila, this is good code:"
+                (quote ~good))))
+
+(code-critic (1 + 1) (+ 1 1))
+
+;; Refactoring a Macro and Unquote Splicing
+(defn criticize-code
+  [criticism code]
+  `(println ~criticism (quote ~code)))
+
+(defmacro code-critic
+  [bad good]
+  `(do ~(criticize-code "Curses bacteria of Liberta, this is bad code:" bad)
+       ~(criticize-code "Sweet secred boa of Western and Easten Samoa, this is good code: " good)))
+
+(code-critic (1 * 2) (* 1 2))
+
+;; remove some duplication
+;; (defmacro code-critic
+;;   [bad good]
+;;   `(do ~(map #(apply criticize-code %)
+;;              [["This is bad code: " bad]
+;;               ["This is great code: " good]])))
+`(+ ~(list 1 2 3))
+;; (clojure.core/+ (1 2 3))
+
+`(+ ~@(list 1 2 3))
+;; (clojure.core/+ 1 2 3)
+
+(defmacro code-critic
+  [good bad]
+  `(do ~@(map #(apply criticize-code %)
+              [["Sweet lion of Zion, this is bad code:" bad]
+               ["Great cow of Moscow, this is good code:" good]])))
+
+(code-critic (3 * 4) (* 4 3))
+;; Sweet lion of Zion, this is bad code: (* 4 3)
+;; Great cow of Moscow, this is good code: (3 * 4)
+
+;; Things to Watch Out For
+(def message "Good job!")
+
+ (defmacro with-mischief
+  [& stuff-to-do]
+  (concat (list 'let ['message "Oh, big deal!"])
+          stuff-to-do))
+
+(with-mischief
+  (str "Here's how I feel about that thing you did " message))
+;; => "Here's how I feel about that thing you did Oh, big deal!"
+
+(defmacro with-mischief
+  [& stuff-to-do]
+  `(let [message "Oh, big deal!"]
+     ~@stuff-to-do))
+
+;; (with-mischief
+;;   (str "Here's how I feel about that thing you did: " message))
+;; RuntimeException: => Can't let qualified name: cfbt.ch08/message
+
+;;(gensym)
+(gensym 'message) ;; message25849
+(gensym 'message) ;; message25852
+
+;; Here is how to fix it
+(defmacro without-mischief
+  [& stuff-to-do]
+  (let [macro-message (gensym 'message)]
+    `(let [~macro-message "Oh, big deal!"]
+       ~@stuff-to-do
+       (println "I still need to say: " ~macro-message))))
+
+(without-mischief
+ (println "Here's how I feel about that thing you did: " message))
+
+;; Double Evaluation (p178): TBC
