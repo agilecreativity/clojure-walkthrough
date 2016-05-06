@@ -262,6 +262,13 @@ l;; => "Great squid of Madrid, this is bad code: (1 + 1)
      (if (empty? ~errors-name)
        ~@then-else)))
 
-(;; if-valid order-details order-details-validation errors
- ;;   (render :success)
- ;;   (render :failure errors))
+;; (if-valid order-details order-details-validation errors
+;;   (render :success)
+;;   (render :failure errors))
+
+(macroexpand
+ '(if-valid order-details order-details-validations my-error-name
+            (println :success)
+            (println :failure my-error-name)))
+
+;; (let* [my-error-name (cfbt.ch08/validate order-details order-details-validations)] (if (clojure.core/empty? my-error-name) (println :success) (println :failure my-error-name)))
