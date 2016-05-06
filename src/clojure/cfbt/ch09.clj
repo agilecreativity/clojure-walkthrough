@@ -1,4 +1,5 @@
-(ns cfbt.ch09)
+(ns cfbt.ch09
+  (:require [clojure.core.async :refer [timeout]]))
 
 (future (Thread/sleep 4000)
         (println "I'll print after 4 seconds"))
@@ -115,3 +116,14 @@
 ;; =>  Whisper your way to success.
 
 ;; Rolling Your Own Queue:: (p202)
+(defmacro wait
+  "Sleep `timeout` seconds before evaluating body"
+  [timeout & body]
+  `(do (Thread/sleep ~timeout) ~@body))
+
+;; (let [saying3 (promise)]
+;;   (future (deliver saying3 (wait 100 "Cheerio!")))
+;;   @(let [saying2 (promise)]
+;;    (future (delivery saying2 (wait 400 "Pip pip!")))
+;;    @(let [saying 1 (promise)]
+;;       (future (deliver saying1 (wait 200 "Ello, gov'na!"))))))
