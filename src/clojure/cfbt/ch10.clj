@@ -86,4 +86,31 @@
 (swap! fred update-in [:percent-deteriorated] + 2)
 (swap! fred update-in [:cuddle-hunger-level] + 30)
 
-;; Validators :: p217
+;; Validators ::
+
+(defn percent-deteriorated-validator
+  [{:keys [percent-deteriorated]}]
+  (and (>= percent-deteriorated 0)
+       (<= percent-deteriorated 100)))
+
+;; Use validator at creation time
+(def boby
+  (atom
+   {:cuddle-hunger-level 0 :percent-deteriorated 0}
+    :validator percent-deteriorated-validator))
+
+;;(swap! boby update-in [:percent-deteriorated] + 200)
+;; => Throw "Invalid reference state!"
+
+(defn percent-deteriorated-validator
+  [{:keys [percent-deteriorated]}]
+  (or (and (>= percent-deteriorated 0)
+           (<= percent-deteriorated 100))
+      (throw (IllegalStateException. "That's not mathly"))))
+
+(def bobby
+  (atom
+   {:cuddle-hunger-level 0 :percent-deteriorated 0}
+   :validator percent-deteriorated-validator))
+
+(swap! bobby update-in [:percent-deteriorated] + 200)
