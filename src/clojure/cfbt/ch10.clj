@@ -176,4 +176,20 @@
 (Thread/sleep 250)
 (println @counter)
 
-;; Commute :: p220
+;; Commute ::
+(defn sleep-print-update
+  [sleep-time thread-name update-fn]
+  (fn [state]
+    (Thread/sleep sleep-time)
+    (println (str thread-name ": " state))
+    (update-fn state)))
+
+(def counter (ref 0))
+
+(future (dosync
+         (commute counter (sleep-print-update 100 "Thread A" inc))))
+
+(future (dosync
+         (commute counter (sleep-print-update 105 "Thread B" inc))))
+
+;; Vars :: 221
