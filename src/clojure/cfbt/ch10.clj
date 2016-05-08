@@ -114,3 +114,32 @@
    :validator percent-deteriorated-validator))
 
 (swap! bobby update-in [:percent-deteriorated] + 200)
+
+;; Refs ::
+
+(def sock-varieties
+  #{"darned" "argyle" "wool" "horsehair" "mulleted"
+    "passive-aggressive" "stripped" "polka-dotted"
+    "athletic" "business" "power" "invisible" "gollumed"})
+
+(defn sock-count
+  [sock-variety count]
+  {:variety sock-variety
+   :count count})
+
+(defn generate-sock-gnome
+  "Create an initial sock gnome state with no socks"
+  [name]
+  {:name name
+   :socks #{}})
+
+;; now create the ref
+(def sock-gnome (ref (generate-sock-gnome "Barumpharumph")))
+
+(def dryer (ref {:name "LG 1337"
+                 :socks (set (map #(sock-count % 2) sock-varieties))}))
+
+(:socks @dryer) ;;
+;; #{{:variety "gollumed", :count 2} {:variety "wool", :count 2} {:variety "passive-aggressive", :count 2} {:variety "argyle", :count 2} {:variety "business", :count 2} {:variety "darned", :count 2} {:variety "polka-dotted", :count 2} {:variety "horsehair", :count 2} {:variety "power", :count 2} {:variety "stripped", :count 2} {:variety "athletic", :count 2} {:variety "mulleted", :count 2} {:variety "invisible", :count 2}}
+
+;; TBC: 219
