@@ -113,13 +113,13 @@
    {:cuddle-hunger-level 0 :percent-deteriorated 0}
    :validator percent-deteriorated-validator))
 
-(swap! bobby update-in [:percent-deteriorated] + 200)
+;;(swap! bobby update-in [:percent-deteriorated] + 200)
 
 ;; Refs ::
 
 (def sock-varieties
   #{"darned" "argyle" "wool" "horsehair" "mulleted"
-    "passive-aggressive" "stripped" "polka-dotted"
+    "passive-aggressive" "striped" "polka-dotted"
     "athletic" "business" "power" "invisible" "gollumed"})
 
 (defn sock-count
@@ -140,6 +140,40 @@
                  :socks (set (map #(sock-count % 2) sock-varieties))}))
 
 (:socks @dryer) ;;
-;; #{{:variety "gollumed", :count 2} {:variety "wool", :count 2} {:variety "passive-aggressive", :count 2} {:variety "argyle", :count 2} {:variety "business", :count 2} {:variety "darned", :count 2} {:variety "polka-dotted", :count 2} {:variety "horsehair", :count 2} {:variety "power", :count 2} {:variety "stripped", :count 2} {:variety "athletic", :count 2} {:variety "mulleted", :count 2} {:variety "invisible", :count 2}}
+;; #{{:variety "gollumed", :count 2} {:variety "striped", :count 2} {:variety "wool", :count 2} {:variety "passive-aggressive", :count 2} {:variety "argyle", :count 2} {:variety "business", :count 2} {:variety "darned", :count 2} {:variety "polka-dotted", :count 2} {:variety "horsehair", :count 2} {:variety "power", :count 2} {:variety "athletic", :count 2} {:variety "mulleted", :count 2} {:variety "invisible", :count 2}}
 
-;; TBC: 219
+(defn steal-sock
+  [gnome dryer]
+  (dosync
+   (when-let [pair (some #(if (= (:count %) 2) %) (:socks @dryer))]
+     (let [updated-count (sock-count (:variety pair) 1)]
+       (alter gnome update-in [:socks] conj updated-count)
+       (alter dryer update-in [:socks] disj pair)
+       (alter dryer update-in [:socks] conj updated-count)))))
+
+(steal-sock sock-gnome dryer)
+;; {:name "LG 1337", :socks #{{:variety "striped", :count 2} {:variety "wool", :count 2} {:variety "passive-aggressive", :count 2} {:variety "argyle", :count 2} {:variety "business", :count 2} {:variety "darned", :count 2} {:variety "polka-dotted", :count 2} {:variety "horsehair", :count 2} {:variety "power", :count 2} {:variety "athletic", :count 2} {:variety "gollumed", :count 1} {:variety "mulleted", :count 2} {:variety "invisible", :count 2}}}
+
+(:socks @sock-gnome)
+;; #{{:variety "gollumed", :count 1}}
+
+(defn similar-socks
+  [target-sock sock-set]
+  (filter #(= (:variety %) (:variety target-sock)) sock-set))
+
+(similar-socks (first (:socks @sock-gnome)) (:socks @dryer))
+;; ({:variety "gollumed", :count 1})
+
+(def counter (ref 0))
+(future
+  (dosync
+   (alter counter inc)
+   (println @counter)
+   (Thread/sleep 500)
+   (alter counter inc)
+   (println @counter)))
+
+(Thread/sleep 250)
+(println @counter)
+
+;; Commute :: p220
