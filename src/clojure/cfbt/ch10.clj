@@ -297,3 +297,42 @@ power-source ;; "7-eleven parking lot"
 
 (time (dorun (pmap clojure.string/lower-case orc-names)))
 ;; Elapsed time: 184.969880 msec
+
+(def orc-name-abbrevs (random-string-list 20000 300))
+
+(time (dorun (map clojure.string/lower-case orc-name-abbrevs)))
+
+;; Elapsed time: 151.107737 msec
+
+(time (dorun (pmap clojure.string/lower-case orc-name-abbrevs)))
+;; Elapsed time: 109.60039 msec
+
+(def numbers [1 2 3 4 5 6 7 8 9 10])
+
+(partition-all 3 numbers) ;; ((1 2 3) (4 5 6) (7 8 9) (10))
+(pmap inc numbers) ;; (2 3 4 5 6 7 8 9 10 11)
+
+(pmap (fn [number-group] (doall (map inc number-group)))
+      (partition-all 3 numbers)) ;; ((2 3 4) (5 6 7) (8 9 10) (11))
+
+(apply concat
+      (pmap (fn [number-group] (doall (map inc number-group)))
+            (partition-all 3 numbers))) ;; (2 3 4 5 6 7 8 9 10 11)
+
+(time
+ (dorun
+  (apply concat
+         (pmap (fn [name] (doall (map clojure.string/lower-case name)))
+               (partition-all 1000 orc-name-abbrevs)))))
+;; Elapsed time: 84.826032 msecs
+
+(defn ppmap
+  "Partitioned pmap, for grouping map ops together to make parallel overhead worthwhile"
+  [grain-size f & colls]
+  (apply concat
+         (apply pmap
+                (fn [& pgroups] (doall (apply map f pgroups)))
+                (map (partial partition-all grain-size) colls))))
+
+(time (dorun (ppmap 1000 clojure.string/lower-case orc-name-abbrevs)))
+;; "Elapsed time: 67.655845 msecs"
