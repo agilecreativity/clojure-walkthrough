@@ -239,4 +239,61 @@
 ;; => TROLL: Time to eat you, succulent human!
 ;; => SUCCULENT HUMAN: Ooooh! The answer was man meat
 
+;; Per-Thread Binding
+(.write *out* "prints to repl")
 
+(.start) (Thread. #(.write *out* "prints to standard out"))
+
+(let [out *out*]
+  (.start
+   (Thread. #(binding [*out* out]
+               (.write *out* "prints to repl from thread")))))
+
+
+(.start (Thread. (bound-fn [] (.write *out* "print to repl from thread!"))))
+
+;; Altering the Var Root
+
+(def power-source "hair")
+
+(alter-var-root #'power-source (fn [_] "7-eleven parking lot"))
+
+power-source ;; "7-eleven parking lot"
+
+(with-redefs [*out* *out*]
+  (doto (Thread. #(println "with redefs allow me to show up in the REPL"))
+    .start
+    .join))
+
+;; pmap examples
+(defn always-1
+  []
+  1)
+
+(take 5 (repeatedly always-1)) ;; (1 1 1 1 1)
+
+;; lazy sequence of random numbers between 0 and 9
+(take 5 (repeatedly (partial rand-int 10))) ;; (0 5 8 4 9)
+
+;; compare the performance of pmap and map
+(def alphabet-length 26)
+
+;; Vector of chars, A-Z
+(def letters (mapv (comp str char (partial + 65)) (range alphabet-length)))
+
+(defn random-string
+  "Returns a random string of specified length"
+  [length]
+  (apply str (take length (repeatedly #(rand-nth letters)))))
+
+(defn random-string-list
+  [list-length string-length]
+  (doall (take list-length (repeatedly (partial random-string string-length)))))
+
+(def orc-names (random-string-list 3000 7000))
+
+(time (dorun (map clojure.string/lower-case orc-names)))
+;; Elapsed time: 320.863699 msec
+
+(time (dorun (pmap clojure.string/lower-case orc-names)))
+;; Elapsed time: 184.969880 msec
