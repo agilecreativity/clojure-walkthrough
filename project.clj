@@ -9,6 +9,7 @@
                  [org.clojure/core.match "0.3.0-alpha4"]]
   ;:main ^:skip-aot clojure-walkthrough.core
   :target-path "target/%s"
+
   :profiles {:uberjar {:aot :all}}
   :source-paths ["src/clojure" "test/clojure"]
   :java-source-paths ["src/java" "test/java"]
