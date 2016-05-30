@@ -112,4 +112,100 @@
 (factorial 5) ;; 120
 (factorial 20) ;; 2432902008176640000
 
-;; Using refs: (TBC)
+;; Using refs
+(def state (ref 0))
+@state ;; 0
+
+(dosync (ref-set state 1)) ;; 1
+@state ;; 1
+
+(dosync (alter state + 2)) ;; 3
+
+(dosync (commute state + 2)) ;; 5
+
+(def r (ref 1 :validator pos?))
+
+;(dosync (alter r (fn [_] -1))) ;; IllegalStateException
+
+;; But this will return as it pass the validation
+(dosync (alter r (fn [_] 20))) ;; 20
+
+;; Dining philosopher problem
+
+(defn make-fork []
+  (ref true))
+
+(defn make-philosopher [name forks food]
+  (ref {:name name
+        :forks forks
+        :eating? false
+        :food food}))
+
+(defn has-forks? [p]
+  (every? true? (map ensure (:forks @p))))
+
+(defn update-forks [p]
+  (doseq [f (:forks @p)]
+    (commute f not))
+  p)
+
+(defn start-eating [p]
+  (dosync
+   (when (has-forks? p)
+     (update-forks p)
+     (commute p assoc :eating? true)
+     (commute p update-in [:food] dec))))
+
+(defn stop-eating [p]
+  (dosync
+   (when (:eating? @p)
+     (commute p assoc :eating? false)
+     (update-forks p))))
+
+(defn dine
+  [p retry-ms max-eat-ms max-think-ms]
+  (dosync
+   (when (:eating? @p)
+     (do
+       (Thread/sleep (rand-int max-eat-ms))
+       (stop-eating p)
+       (Thread/sleep (rand-int max-think-ms)))
+     (Thread/sleep retry-ms))))
+
+(defn init-forks [nf]
+  (repeatedly nf #(make-fork)))
+
+(defn init-philosophers [np food forks init-fn]
+  (let [p-range (range np)
+        p-names (map #(str "Philosopher " (inc %))
+                     p-range)
+        p-forks (map #(vector (nth forks %)
+                              (nth forks (-> % inc (mod np))))
+                     p-range)
+        p-food (cycle [food])]
+    (map init-fn p-names p-forks p-food)))
+
+(defn check-philosophers [philosophers forks]
+  (doseq [i (range (count philosophers))]
+    (println (str "Fork:\t\t\t available=" @(nth forks i)))
+    (if-let [p @(nth philosophers i)]
+      (println (str (:name p)
+                    ":\t\t eating=" (:eating? p)
+                    " food=" (:food p))))))
+
+(defn dine-philosophers [philosophers]
+  (doall (for [p philosophers]
+           (future (dine p 10 100 100)))))
+
+(def all-forks (init-forks 5))
+
+(def all-philosophers
+  (init-philosophers 5 1000 all-forks make-philosopher))
+
+(check-philosophers all-philosophers all-forks)
+
+(def philosophers-futures (dine-philosophers all-philosophers))
+
+(check-philosophers all-philosophers all-forks)
+
+;; Using atoms: TBC (p99)
