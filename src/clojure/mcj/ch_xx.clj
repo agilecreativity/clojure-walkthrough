@@ -208,4 +208,37 @@
 
 (check-philosophers all-philosophers all-forks)
 
-;; Using atoms: TBC (p99)
+;; Pause the simulation
+(map future-cancel philosophers-futures)
+
+;; Using atoms:
+
+(def state (atom 0))
+
+@state ;; 0
+
+(reset! state 1) ;; 1
+
+@state ;; 1
+
+(swap! state + 2) ;; 3
+
+;; Using add-watch function (contain error in the book)
+(defn make-state-with-watch []
+  (let [state (atom 0)
+        state-is-changed? (atom false)
+        watch-fn (fn [key r old-value new-value]
+                   (swap! state-is-changed? (fn [_] true)))]
+    (add-watch state nil watch-fn)
+    [state
+     state-is-changed?]))
+
+(def s (make-state-with-watch))
+
+@(nth s 1) ;; false
+
+(swap! (nth s 0) inc) ;; 1
+
+@(nth s 1) ;; true
+
+;; Using agents (TBC)
