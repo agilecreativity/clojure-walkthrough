@@ -6,7 +6,9 @@
 
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [org.clojure/data.json "0.2.6"]
-                 [org.clojure/core.match "0.3.0-alpha4"]]
+                 [org.clojars.hozumi/clj-commons-exec "1.2.0"]
+                 [org.clojure/core.match "0.3.0-alpha4"]
+                 [jline "2.11"]]
   ;:main ^:skip-aot clojure-walkthrough.core
   :target-path "target/%s"
 
