@@ -151,3 +151,87 @@ list-file ;; (#object[java.io.File 0x29923f72 "./src"] #object[java.io.File 0x6f
   (filter #(.isFile %) file-s))
 
 (only-files list-file) ;; (#object[java.io.File 0x7449d809 "./src/java/com/examples/Client.java"] #object[java.io.File 0x303d9c46 "./src/java/com/gentest/AbstractJavaClass.java"] #object[java.io.File 0x6bc49c8f "./src/clojure/com/curry/utils/calculator.clj"] #object[java.io.File 0x169520e3 "./src/clojure/com/curry/utils/calc/dcf.clj"] #object[java.io.File 0x2e639c51 "./src/clojure/com/curry/utils/calc/fcf.clj"] #object[java.io.File 0x733be51a "./src/clojure/com/gentest/genclojure.clj"] #object[java.io.File 0x7ea5dd71 "./src/clojure/mcj/ch_xx.clj"] #object[java.io.File 0x7d454cae "./src/clojure/mcj/c02_agents.clj"] #object[java.io.File 0x2f1f15c1 "./src/clojure/cjapplied/ch08.clj"] #object[java.io.File 0x28f61874 "./src/clojure/cjfn/05_destructoring.clj"] #object[java.io.File 0x2a27f37e "./src/clojure/cjfn/07_control_flow.clj"] #object[java.io.File 0x7dc15ae6 "./src/clojure/cjfn/README.md"] #object[java.io.File 0xaefa773 "./src/clojure/cjfn/09_sequences.clj"] #object[java.io.File 0x708afaa6 "./src/clojure/clojure/script/examples.clj"] #object[java.io.File 0x5fb14aa8 "./src/clojure/cjcb/codes.clj"] #object[java.io.File 0x78c9c432 "./src/clojure/cjcb/#codes.clj#"] #object[java.io.File 0x5b21dbcb "./src/clojure/cfbt/ch09.clj"] #object[java.io.File 0x6d7f6cc9 "./src/clojure/cfbt/ch05.clj"] #object[java.io.File 0x58ca8383 "./src/clojure/cfbt/ch08.clj"] #object[java.io.File 0x577051cd "./src/clojure/cfbt/ch04.clj"] #object[java.io.File 0x2da376b "./src/clojure/cfbt/ch06.clj"] #object[java.io.File 0x14d51add "./src/clojure/cfbt/ch07.clj"] #object[java.io.File 0x180f455f "./src/clojure/cfbt/ch10.clj"] #object[java.io.File 0x22a964e7 "./src/clojure/clojure_walkthrough/cjia/ch05_xx.clj"] #object[java.io.File 0x406ee850 "./src/clojure/clojure_walkthrough/cjia/ch03_06.clj"] #object[java.io.File 0x29ae0836 "./src/clojure/clojure_walkthrough/cjia/ch04_xx.clj"] #object[java.io.File 0x322ed4f "./src/clojure/clojure_walkthrough/cjia/ch06_xx.clj"] #object[java.io.File 0x6a452f90 "./src/clojure/clojure_walkthrough/cjia/ch09_xx.clj"] #object[java.io.File 0x5d5e66e0 "./src/clojure/clojure_walkthrough/cjia/ch08_object.clj"] #object[java.io.File 0x4683ac5 "./src/clojure/clojure_walkthrough/cjia/ch03_05.clj"] #object[java.io.File 0x10b4f792 "./src/clojure/clojure_walkthrough/cjia/ch08_xx.clj"] #object[java.io.File 0x53ce63bb "./src/clojure/clojure_walkthrough/cjia/ch03_04.clj"] #object[java.io.File 0x7d096644 "./src/clojure/clojure_walkthrough/cjia/ch03_07.clj"] #object[java.io.File 0x3872d532 "./src/clojure/clojure_walkthrough/cjia/ch07_xx.clj"] #object[java.io.File 0xfcdbdc9 "./src/clojure/clojure_walkthrough/cjia/ch03_03.clj"] #object[java.io.File 0x2f3ec430 "./src/clojure/clojure_walkthrough/cjia/readme.md"] #object[java.io.File 0x19b3acd5 "./src/clojure/clojure_walkthrough/cjia/ch10_xx.clj"] #object[java.io.File 0x37c63194 "./src/clojure/clojure_walkthrough/core.clj"])
+
+;; 4.9: reading and writing text files
+
+(spit "./foo.txt" "my stuff\n and more")
+
+;; read it back
+(slurp "./foo.txt") ;; "my stuff\n and more"
+
+;; use of encoding as required
+(slurp "./foo.txt" :encoding "UTF-8") ;;
+
+;; append data to existing file
+(spit "./foo.txt" "\neven more stuff" :append true)
+
+(slurp "./foo.txt") ;; "my stuff\n and more\neven more stuff"
+
+;; read file line by line
+(with-open [r (clojure.java.io/reader "./foo.txt")]
+  (doseq [line (line-seq r)]
+    (println line)))
+
+(defn spitn
+  "Append to file with newline"
+  [path text]
+  (spit path (str text "\n") :append true))
+
+;; 04.10: using temp file
+(def my-temp-file (java.io.File/createTempFile "filename" ".txt"))
+
+;; write to temp file like normally
+(with-open [file (clojure.java.io/writer my-temp-file)]
+  (binding [*out*  file]
+    (println "Example output.")))
+
+(.getAbsolutePath my-temp-file) ;; "/tmp/filename6251207477218285160.txt"
+
+(.deleteOnExit my-temp-file)
+
+(.delete my-temp-file)
+
+;; 04.11: reading/writing files at arbitrary positions
+(import '[java.io RandomAccessFile])
+
+;; Make a 1 GB file filled with zeros except the integer 1,234 at the end
+(doto (RandomAccessFile. "/tmp/longfile" "rw")
+  (.seek (* 1000 1000 1000))
+  (.writeInt 1234)
+  (.close))
+
+(require '[clojure.java.io :refer [file]])
+(.length (file "/tmp/longfile")) ;; 1000000004
+
+(let [raf (RandomAccessFile. "/tmp/longfile" "r")
+      _ (.seek raf (* 1000 1000 1000))
+      result (.readInt raf)]
+  (.close raf)
+  result) ;; 1234
+
+;; 04.12: Parallelizing file processing
+
+(require ['clojure.java.io :as 'jio])
+
+(defn pmap-file
+  "Process input-file in parallel, applying processing-fn to each row outputting into output-file"
+  [processing-fn input-file output-file]
+  (with-open [rdr (jio/reader input-file)
+              wtr (jio/writer output-file)]
+    (let [lines (line-seq rdr)]
+      (dorun
+       (map #(.write wtr %)
+            (pmap processing-fn lines))))))
+
+;; Example of calling this function
+(def accumulator (atom 0))
+
+(defn- example-row-fn
+  "Trivial example"
+  [row-string]
+  (str row-string "," (swap! accumulator inc) "n"))
+
+;; Call it
+(pmap-file example-row-fn "./foo.txt" "./bar.txt")
+
+;; 04.13: Parallizing file processing with reducers (TBC)
