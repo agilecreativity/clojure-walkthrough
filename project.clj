@@ -14,6 +14,8 @@
 
   :profiles {:uberjar {:aot :all}}
   :source-paths ["src/clojure" "test/clojure"]
+  ;; Add more if you like
+  :resource-paths ["resources" "src/resources"]
   :java-source-paths ["src/java" "test/java"]
   :aot [com.gentest.genclojure]
   :main com.gentest.ConcreteClojureClass)
