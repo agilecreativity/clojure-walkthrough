@@ -108,3 +108,46 @@
 (safe-copy "./foo.txt" "./bar.txt") ;; false
 
 (safe-copy "./foo.txt" "./bar.txt" :overwrite true) ;; true
+
+(with-open [reader (clojure.java.io/reader "./foo.txt")
+            writer (clojure.java.io/writer "./bar.txt")]
+  (clojure.java.io/copy reader writer))
+
+;; 4.6: deleting files or directories
+(let [silently true]
+ (clojure.java.io/delete-file "./baz.txt" silently)) ;; true
+
+(defn safe-delete [file-path]
+  (if (.exists (clojure.java.io/file file-path))
+    (try
+      (clojure.java.io/delete-file file-path)
+      (catch Exception e (str "Exception: " (.getMessage e))))
+    false))
+
+(safe-delete "./foo.txt") ;; true
+(safe-delete "./invalid-file.txt") ;; false
+
+;; Delete directory
+(defn delete-directory [dir-path]
+  (let [dir-contents (file-seq (clojure.java.io/file dir-path))
+        files-to-delete (filter #(.isFile %) dir-contents)]
+    (doseq [file files-to-delete]
+      (safe-delete (.getPath file)))
+    (safe-delete dir-path)))
+
+;; If we have just one level of directory without sub-directory
+(delete-directory "./tmp") ;; true
+
+;; 4.7: listing files in a directory using `file-seq` function
+(def list-file (file-seq (clojure.java.io/file "./src")))
+
+list-file ;; (#object[java.io.File 0x29923f72 "./src"] #object[java.io.File 0x6f993ddc "./src/java"] #object[java.io.File 0x316a75a9 "./src/java/com"] #object[java.io.File 0x4c981747 "./src/java/com/examples"] #object[java.io.File 0x7449d809 "./src/java/com/examples/Client.java"] #object[java.io.File 0x52986c81 "./src/java/com/gentest"] #object[java.io.File 0x303d9c46 "./src/java/com/gentest/AbstractJavaClass.java"] #object[java.io.File 0x3c939729 "./src/clojure"] #object[java.io.File 0x6a09922 "./src/clojure/com"] #object[java.io.File 0x17cd0113 "./src/clojure/com/curry"] #object[java.io.File 0x4bce6000 "./src/clojure/com/curry/utils"] #object[java.io.File 0x6bc49c8f "./src/clojure/com/curry/utils/calculator.clj"] #object[java.io.File 0x69af715c "./src/clojure/com/curry/utils/calc"] #object[java.io.File 0x169520e3 "./src/clojure/com/curry/utils/calc/dcf.clj"] #object[java.io.File 0x2e639c51 "./src/clojure/com/curry/utils/calc/fcf.clj"] #object[java.io.File 0x610c4df6 "./src/clojure/com/gentest"] #object[java.io.File 0x733be51a "./src/clojure/com/gentest/genclojure.clj"] #object[java.io.File 0x4c9651a6 "./src/clojure/mcj"] #object[java.io.File 0x7ea5dd71 "./src/clojure/mcj/ch_xx.clj"] #object[java.io.File 0x7d454cae "./src/clojure/mcj/c02_agents.clj"] #object[java.io.File 0x517a7529 "./src/clojure/cjapplied"] #object[java.io.File 0x2f1f15c1 "./src/clojure/cjapplied/ch08.clj"] #object[java.io.File 0x7f011b06 "./src/clojure/cjfn"] #object[java.io.File 0x28f61874 "./src/clojure/cjfn/05_destructoring.clj"] #object[java.io.File 0x2a27f37e "./src/clojure/cjfn/07_control_flow.clj"] #object[java.io.File 0x7dc15ae6 "./src/clojure/cjfn/README.md"] #object[java.io.File 0xaefa773 "./src/clojure/cjfn/09_sequences.clj"] #object[java.io.File 0x12423be2 "./src/clojure/clojure"] #object[java.io.File 0x7eb86d7 "./src/clojure/clojure/script"] #object[java.io.File 0x708afaa6 "./src/clojure/clojure/script/examples.clj"] #object[java.io.File 0x7a91ffb "./src/clojure/cjcb"] #object[java.io.File 0x437b9c7 "./src/clojure/cjcb/.#codes.clj"] #object[java.io.File 0x5fb14aa8 "./src/clojure/cjcb/codes.clj"] #object[java.io.File 0x78c9c432 "./src/clojure/cjcb/#codes.clj#"] #object[java.io.File 0x37504a17 "./src/clojure/cjcb/.# *Minibuf-2*"] #object[java.io.File 0xe9034bb "./src/clojure/cfbt"] #object[java.io.File 0x5b21dbcb "./src/clojure/cfbt/ch09.clj"] #object[java.io.File 0x6d7f6cc9 "./src/clojure/cfbt/ch05.clj"] #object[java.io.File 0x58ca8383 "./src/clojure/cfbt/ch08.clj"] #object[java.io.File 0x577051cd "./src/clojure/cfbt/ch04.clj"] #object[java.io.File 0x2da376b "./src/clojure/cfbt/ch06.clj"] #object[java.io.File 0x14d51add "./src/clojure/cfbt/ch07.clj"] #object[java.io.File 0x180f455f "./src/clojure/cfbt/ch10.clj"] #object[java.io.File 0x4da491aa "./src/clojure/clojure_walkthrough"] #object[java.io.File 0x1e96861a "./src/clojure/clojure_walkthrough/cjia"] #object[java.io.File 0x22a964e7 "./src/clojure/clojure_walkthrough/cjia/ch05_xx.clj"] #object[java.io.File 0x406ee850 "./src/clojure/clojure_walkthrough/cjia/ch03_06.clj"] #object[java.io.File 0x29ae0836 "./src/clojure/clojure_walkthrough/cjia/ch04_xx.clj"] #object[java.io.File 0x322ed4f "./src/clojure/clojure_walkthrough/cjia/ch06_xx.clj"] #object[java.io.File 0x6a452f90 "./src/clojure/clojure_walkthrough/cjia/ch09_xx.clj"] #object[java.io.File 0x5d5e66e0 "./src/clojure/clojure_walkthrough/cjia/ch08_object.clj"] #object[java.io.File 0x4683ac5 "./src/clojure/clojure_walkthrough/cjia/ch03_05.clj"] #object[java.io.File 0x10b4f792 "./src/clojure/clojure_walkthrough/cjia/ch08_xx.clj"] #object[java.io.File 0x53ce63bb "./src/clojure/clojure_walkthrough/cjia/ch03_04.clj"] #object[java.io.File 0x7d096644 "./src/clojure/clojure_walkthrough/cjia/ch03_07.clj"] #object[java.io.File 0x3872d532 "./src/clojure/clojure_walkthrough/cjia/ch07_xx.clj"] #object[java.io.File 0xfcdbdc9 "./src/clojure/clojure_walkthrough/cjia/ch03_03.clj"] #object[java.io.File 0x2f3ec430 "./src/clojure/clojure_walkthrough/cjia/readme.md"] #object[java.io.File 0x19b3acd5 "./src/clojure/clojure_walkthrough/cjia/ch10_xx.clj"] #object[java.io.File 0x37c63194 "./src/clojure/clojure_walkthrough/core.clj"] #object[java.io.File 0x5507f150 "./src/resources"])
+
+;; Let's list only files
+
+(defn only-files
+  "Filter a sequence of files/directories by .isFile property of java.io.File"
+  [file-s]
+  (filter #(.isFile %) file-s))
+
+(only-files list-file) ;; (#object[java.io.File 0x7449d809 "./src/java/com/examples/Client.java"] #object[java.io.File 0x303d9c46 "./src/java/com/gentest/AbstractJavaClass.java"] #object[java.io.File 0x6bc49c8f "./src/clojure/com/curry/utils/calculator.clj"] #object[java.io.File 0x169520e3 "./src/clojure/com/curry/utils/calc/dcf.clj"] #object[java.io.File 0x2e639c51 "./src/clojure/com/curry/utils/calc/fcf.clj"] #object[java.io.File 0x733be51a "./src/clojure/com/gentest/genclojure.clj"] #object[java.io.File 0x7ea5dd71 "./src/clojure/mcj/ch_xx.clj"] #object[java.io.File 0x7d454cae "./src/clojure/mcj/c02_agents.clj"] #object[java.io.File 0x2f1f15c1 "./src/clojure/cjapplied/ch08.clj"] #object[java.io.File 0x28f61874 "./src/clojure/cjfn/05_destructoring.clj"] #object[java.io.File 0x2a27f37e "./src/clojure/cjfn/07_control_flow.clj"] #object[java.io.File 0x7dc15ae6 "./src/clojure/cjfn/README.md"] #object[java.io.File 0xaefa773 "./src/clojure/cjfn/09_sequences.clj"] #object[java.io.File 0x708afaa6 "./src/clojure/clojure/script/examples.clj"] #object[java.io.File 0x5fb14aa8 "./src/clojure/cjcb/codes.clj"] #object[java.io.File 0x78c9c432 "./src/clojure/cjcb/#codes.clj#"] #object[java.io.File 0x5b21dbcb "./src/clojure/cfbt/ch09.clj"] #object[java.io.File 0x6d7f6cc9 "./src/clojure/cfbt/ch05.clj"] #object[java.io.File 0x58ca8383 "./src/clojure/cfbt/ch08.clj"] #object[java.io.File 0x577051cd "./src/clojure/cfbt/ch04.clj"] #object[java.io.File 0x2da376b "./src/clojure/cfbt/ch06.clj"] #object[java.io.File 0x14d51add "./src/clojure/cfbt/ch07.clj"] #object[java.io.File 0x180f455f "./src/clojure/cfbt/ch10.clj"] #object[java.io.File 0x22a964e7 "./src/clojure/clojure_walkthrough/cjia/ch05_xx.clj"] #object[java.io.File 0x406ee850 "./src/clojure/clojure_walkthrough/cjia/ch03_06.clj"] #object[java.io.File 0x29ae0836 "./src/clojure/clojure_walkthrough/cjia/ch04_xx.clj"] #object[java.io.File 0x322ed4f "./src/clojure/clojure_walkthrough/cjia/ch06_xx.clj"] #object[java.io.File 0x6a452f90 "./src/clojure/clojure_walkthrough/cjia/ch09_xx.clj"] #object[java.io.File 0x5d5e66e0 "./src/clojure/clojure_walkthrough/cjia/ch08_object.clj"] #object[java.io.File 0x4683ac5 "./src/clojure/clojure_walkthrough/cjia/ch03_05.clj"] #object[java.io.File 0x10b4f792 "./src/clojure/clojure_walkthrough/cjia/ch08_xx.clj"] #object[java.io.File 0x53ce63bb "./src/clojure/clojure_walkthrough/cjia/ch03_04.clj"] #object[java.io.File 0x7d096644 "./src/clojure/clojure_walkthrough/cjia/ch03_07.clj"] #object[java.io.File 0x3872d532 "./src/clojure/clojure_walkthrough/cjia/ch07_xx.clj"] #object[java.io.File 0xfcdbdc9 "./src/clojure/clojure_walkthrough/cjia/ch03_03.clj"] #object[java.io.File 0x2f3ec430 "./src/clojure/clojure_walkthrough/cjia/readme.md"] #object[java.io.File 0x19b3acd5 "./src/clojure/clojure_walkthrough/cjia/ch10_xx.clj"] #object[java.io.File 0x37c63194 "./src/clojure/clojure_walkthrough/core.clj"])
