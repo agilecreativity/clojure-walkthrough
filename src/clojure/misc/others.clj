@@ -1,5 +1,4 @@
 (ns misc.others)
-
 ;; https://clojuredocs.org/clojure.core/->
 
 ;; Thread last examples
