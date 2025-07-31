@@ -1,14 +1,14 @@
 (defproject clojure-walkthrough "0.1.0-SNAPSHOT"
   :description "Clojure By Examples"
-  :url "http://example.com/FIXME"
+  :url "https://github.com/agilecreativity/clojure-walkthrough"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[org.clojure/clojure "1.12.1"]
-                 [org.clojure/data.json "0.2.6"]
+  :dependencies [[org.clojure/clojure "1.12.0"]
+                 [org.clojure/data.json "2.5.1"]
                  [org.clojars.hozumi/clj-commons-exec "1.2.0"]
-                 [org.clojure/core.match "0.3.0-alpha4"]
-                 [iota "1.1.1"]
-                 [jline "2.11"]]
+                 [org.clojure/core.match "1.1.0"]
+                 [iota "1.1.3"]
+                 [jline "0.9.94"]]
   ;:main ^:skip-aot clojure-walkthrough.core
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all}}
